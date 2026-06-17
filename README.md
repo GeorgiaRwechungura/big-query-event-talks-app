@@ -29,10 +29,11 @@ It fetches release updates from the official Google Cloud BigQuery feed, organiz
 bq-release-notes/
 │
 ├── app.py                  # Flask application (routing, feed fetching, XML parsing, and caching)
-├── requirements.txt        # Python dependencies
 ├── .gitignore              # Local development ignore configurations
 ├── templates/
 │   └── index.html          # Main HTML structure of the app
+├── Documents/
+│   └── requirements.txt    # Python dependencies
 └── static/
     ├── css/
     │   └── style.css       # Custom stylesheet (Glassmorphism design system & layouts)
@@ -67,11 +68,11 @@ python3 -m venv venv
 Install Flask from the requirements file:
 ```bash
 # Windows
-venv\Scripts\pip install -r requirements.txt
+venv\Scripts\pip install -r Documents/requirements.txt
 
 # macOS/Linux
 source venv/bin/activate
-pip install -r requirements.txt
+pip install -r Documents/requirements.txt
 ```
 
 ### 3. Run the App

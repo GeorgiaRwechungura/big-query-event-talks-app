@@ -1021,6 +1021,18 @@ textarea#tweetContent:focus {
     .composer-card {
         height: auto;
     }
+
+    .category-filters {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+        -webkit-overflow-scrolling: touch;
+        gap: 0.35rem;
+    }
+
+    .filter-chip {
+        flex-shrink: 0;
+    }
 }
 
 /* Theme Toggle Button Style */
@@ -1189,5 +1201,95 @@ body.light-mode .progress-ring__circle-bg {
 
 body.light-mode .timeline-date-marker {
     background: #f8fafc;
+}
+
+/* Floating Back to Top Button */
+.back-to-top-btn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+}
+
+.back-to-top-btn.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.back-to-top-btn:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-color-hover);
+    box-shadow: var(--shadow-glow);
+}
+
+.back-to-top-btn:active {
+    transform: scale(0.95);
+}
+
+/* Light mode overrides for back to top button */
+body.light-mode .back-to-top-btn {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(15, 23, 42, 0.08);
+    color: #0f172a;
+    box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.06);
+}
+body.light-mode .back-to-top-btn:hover {
+    background: #ffffff;
+    border-color: var(--accent-blue);
+}
+
+/* Copy Draft Button Style */
+.btn-copy-draft {
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-copy-draft:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.btn-copy-draft:active {
+    transform: scale(0.97);
+}
+
+body.light-mode .btn-copy-draft {
+    background: rgba(15, 23, 42, 0.04) !important;
+    border-color: rgba(15, 23, 42, 0.08) !important;
+    color: var(--text-primary) !important;
+}
+
+body.light-mode .btn-copy-draft:hover {
+    background: rgba(15, 23, 42, 0.08) !important;
+    border-color: rgba(15, 23, 42, 0.15) !important;
+}
+
+/* Shake Warning Animation */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-4px); }
+    40%, 80% { transform: translateX(4px); }
+}
+
+.shake-warning {
+    animation: shake 0.35s cubic-bezier(.36,.07,.19,.97) both;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    perspective: 1000px;
 }
 

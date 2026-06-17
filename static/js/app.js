@@ -4,6 +4,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let filteredReleaseItems = [];
     let selectedItem = null;
     let selectedHashtags = new Set();
+    let customHashtags = [];
+    try {
+        customHashtags = JSON.parse(localStorage.getItem('custom_hashtags')) || [];
+    } catch(e) {
+        customHashtags = [];
+    }
     
     // DOM Elements
     const refreshBtn = document.getElementById('refreshBtn');
@@ -11,6 +17,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeToggleBtn = document.getElementById('themeToggleBtn');
     const sunIcon = document.querySelector('.icon-theme-sun');
     const moonIcon = document.querySelector('.icon-theme-moon');
+    const closeComposerBtn = document.getElementById('closeComposerBtn');
+    const customHashtagInput = document.getElementById('customHashtagInput');
+    const addHashtagBtn = document.getElementById('addHashtagBtn');
+    const copyDraftBtn = document.getElementById('copyDraftBtn');
+    const backToTopBtn = document.getElementById('backToTopBtn');
     const statusDot = document.querySelector('.status-dot');
     const statusText = document.getElementById('statusText');
     const searchInput = document.getElementById('searchInput');
@@ -316,6 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Default hashtags logic: initialize standard tags
         selectedHashtags = new Set(['#BigQuery', '#GoogleCloud']);
+        renderHashtagChips();
         updateHashtagChips();
         
         // Draft Tweet text content intelligently
@@ -382,6 +394,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update Circle colors based on state
         if (len > TWEET_LIMIT) {
             charProgressCircle.style.stroke = '#ef4444';
+            if (!charCount.classList.contains('shake-warning')) {
+                charCount.classList.add('shake-warning');
+                charProgressCircle.classList.add('shake-warning');
+                setTimeout(() => {
+                    charCount.classList.remove('shake-warning');
+                    charProgressCircle.classList.remove('shake-warning');
+                }, 350);
+            }
         } else if (remaining <= 40) {
             charProgressCircle.style.stroke = '#eab308';
         } else {
@@ -418,6 +438,30 @@ document.addEventListener('DOMContentLoaded', () => {
         draftTweetText();
     });
     
+    // Render Quick Hashtags including custom ones
+    function renderHashtagChips() {
+        const defaultTags = ['#BigQuery', '#GoogleCloud', '#GCP', '#DataEngineering', '#CloudComputing'];
+        hashtagContainer.innerHTML = '';
+        
+        // Render defaults
+        defaultTags.forEach(tag => {
+            const btn = document.createElement('button');
+            btn.className = `hashtag-tag ${selectedHashtags.has(tag) ? 'active' : ''}`;
+            btn.dataset.tag = tag;
+            btn.textContent = tag;
+            hashtagContainer.appendChild(btn);
+        });
+        
+        // Render custom tags
+        customHashtags.forEach(tag => {
+            const btn = document.createElement('button');
+            btn.className = `hashtag-tag ${selectedHashtags.has(tag) ? 'active' : ''}`;
+            btn.dataset.tag = tag;
+            btn.textContent = tag;
+            hashtagContainer.appendChild(btn);
+        });
+    }
+
     function updateHashtagChips() {
         hashtagContainer.querySelectorAll('.hashtag-tag').forEach(chip => {
             const tag = chip.dataset.tag;
@@ -578,10 +622,12 @@ document.addEventListener('DOMContentLoaded', () => {
             dismissToast(toast);
         });
         
-        // Autohide toast after 5 seconds
-        setTimeout(() => {
-            dismissToast(toast);
-        }, 5000);
+        // Autohide toast after 3.5 seconds for non-error alerts, keep errors open
+        if (type !== 'error') {
+            setTimeout(() => {
+                dismissToast(toast);
+            }, 3500);
+        }
     }
     
     function dismissToast(toast) {
@@ -631,6 +677,130 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Close Composer (deselect) trigger
+    closeComposerBtn.addEventListener('click', () => {
+        selectedItem = null;
+        document.querySelectorAll('.timeline-item-card').forEach(card => card.classList.remove('selected'));
+        composerBody.style.display = 'none';
+        composerEmpty.style.display = 'flex';
+    });
+
+    // Custom Hashtags Creator Trigger
+    addHashtagBtn.addEventListener('click', () => {
+        let tag = customHashtagInput.value.trim();
+        if (!tag) return;
+        
+        if (!tag.startsWith('#')) {
+            tag = '#' + tag;
+        }
+        
+        // Exclude duplicate tags
+        const defaultTags = ['#BigQuery', '#GoogleCloud', '#GCP', '#DataEngineering', '#CloudComputing'];
+        if (!customHashtags.includes(tag) && !defaultTags.includes(tag)) {
+            customHashtags.push(tag);
+            localStorage.setItem('custom_hashtags', JSON.stringify(customHashtags));
+            renderHashtagChips();
+            customHashtagInput.value = '';
+            showToast(`Hashtag ${tag} added!`, 'success');
+            
+            // If an item is currently selected, refresh draft layout with new tags available
+            if (selectedItem) {
+                draftTweetText();
+            }
+        } else {
+            showToast('Hashtag already exists', 'error');
+        }
+    });
+
+    customHashtagInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addHashtagBtn.click();
+        }
+    });
+
+    // Copy finalized Tweet Draft
+    copyDraftBtn.addEventListener('click', () => {
+        const text = tweetContent.value;
+        if (!text) return;
+        
+        navigator.clipboard.writeText(text)
+            .then(() => {
+                showToast('Tweet draft copied to clipboard!', 'success');
+                const icon = copyDraftBtn.querySelector('i');
+                icon.setAttribute('data-lucide', 'check');
+                lucide.createIcons();
+                setTimeout(() => {
+                    icon.setAttribute('data-lucide', 'copy');
+                    lucide.createIcons();
+                }, 2000);
+            })
+            .catch(err => {
+                console.error('Failed to copy draft:', err);
+                showToast('Failed to copy tweet text', 'error');
+            });
+    });
+
+    // Floating Back to Top Button sensors
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 400) {
+            backToTopBtn.classList.add('visible');
+        } else {
+            backToTopBtn.classList.remove('visible');
+        }
+    });
+
+    backToTopBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Keyboard Navigation for Browsing & Actions
+    window.addEventListener('keydown', (e) => {
+        const active = document.activeElement;
+        // Ignore navigation if editing text fields
+        if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable)) {
+            return;
+        }
+
+        const visibleCards = Array.from(document.querySelectorAll('.timeline-item-card'));
+        if (visibleCards.length === 0) return;
+
+        const currentIndex = visibleCards.findIndex(card => card.classList.contains('selected'));
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            let nextIndex = currentIndex + 1;
+            if (nextIndex >= visibleCards.length) nextIndex = 0;
+            
+            const card = visibleCards[nextIndex];
+            card.click();
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            let prevIndex = currentIndex - 1;
+            if (prevIndex < 0) prevIndex = visibleCards.length - 1;
+            
+            const card = visibleCards[prevIndex];
+            card.click();
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            closeComposerBtn.click();
+        } else if (e.key.toLowerCase() === 'c') {
+            if (currentIndex !== -1 && selectedItem) {
+                e.preventDefault();
+                const activeCard = visibleCards[currentIndex];
+                const copyBtn = activeCard.querySelector('.btn-copy-note');
+                if (copyBtn) copyBtn.click();
+            }
+        } else if (e.key.toLowerCase() === 't') {
+            if (selectedItem) {
+                e.preventDefault();
+                tweetBtn.click();
+            }
+        }
+    });
+
     // Initialize Saved Theme
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'light') {
@@ -642,6 +812,9 @@ document.addEventListener('DOMContentLoaded', () => {
         sunIcon.style.display = 'none';
         moonIcon.style.display = 'block';
     }
+
+    // Initialize hashtag chips template list
+    renderHashtagChips();
     
     // Load notes on initialization
     loadReleaseNotes();

@@ -116,9 +116,14 @@
             <!-- Right Panel: Tweet Composer & Previewer -->
             <aside class="composer-section">
                 <div class="composer-card card sticky">
-                    <div class="card-header">
-                        <i data-lucide="twitter" class="icon-twitter"></i>
-                        <h2>Share Update</h2>
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i data-lucide="twitter" class="icon-twitter"></i>
+                            <h2>Share Update</h2>
+                        </div>
+                        <button class="btn-card-action btn-close-composer" id="closeComposerBtn" title="Clear selection" style="background: transparent; border: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center;">
+                            <i data-lucide="x" style="width: 1.15rem; height: 1.15rem;"></i>
+                        </button>
                     </div>
                     
                     <!-- No Selection State -->
@@ -155,6 +160,11 @@
                                 <button class="hashtag-tag" data-tag="#DataEngineering">#DataEngineering</button>
                                 <button class="hashtag-tag" data-tag="#CloudComputing">#CloudComputing</button>
                             </div>
+                            <!-- Custom Tags Creator -->
+                            <div class="custom-hashtag-input-group" style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                                <input type="text" id="customHashtagInput" placeholder="Add custom hashtag..." style="flex: 1; padding: 0.4rem 0.6rem; border-radius: 0.5rem; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: var(--text-primary); font-size: 0.8rem; font-family: var(--font-sans);">
+                                <button class="btn" id="addHashtagBtn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: var(--accent-blue); color: white; border-radius: 0.5rem;"><i data-lucide="plus" style="width: 0.85rem; height: 0.85rem;"></i> Add</button>
+                            </div>
                         </div>
                         
                         <!-- Real-time Tweet Simulator -->
@@ -183,14 +193,24 @@
                             </div>
                         </div>
 
-                        <button class="btn btn-tweet" id="tweetBtn">
-                            <i data-lucide="twitter"></i> Tweet Now
-                        </button>
+                        <div class="composer-action-buttons" style="display: flex; gap: 0.75rem; width: 100%; margin-top: auto;">
+                            <button class="btn btn-copy-draft" id="copyDraftBtn" style="flex: 1; background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 2rem; padding: 0.75rem; font-size: 0.95rem;">
+                                <i data-lucide="copy" style="width: 1rem; height: 1rem;"></i> Copy Draft
+                            </button>
+                            <button class="btn btn-tweet" id="tweetBtn" style="flex: 1.5; background: var(--accent-twitter); color: white; border-radius: 2rem; padding: 0.75rem; font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                <i data-lucide="twitter" style="width: 1rem; height: 1rem;"></i> Tweet Now
+                            </button>
+                        </div>
                     </div>
                 </div>
             </aside>
         </div>
     </div>
+
+    <!-- Back to Top Floating Button -->
+    <button class="back-to-top-btn" id="backToTopBtn" title="Back to Top">
+        <i data-lucide="arrow-up" style="width: 1.25rem; height: 1.25rem;"></i>
+    </button>
 
     <!-- Error/Toast Notifications -->
     <div class="notification-container" id="notificationContainer"></div>

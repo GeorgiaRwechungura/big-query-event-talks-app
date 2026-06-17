@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // DOM Elements
     const refreshBtn = document.getElementById('refreshBtn');
+    const exportCsvBtn = document.getElementById('exportCsvBtn');
     const statusDot = document.querySelector('.status-dot');
     const statusText = document.getElementById('statusText');
     const searchInput = document.getElementById('searchInput');
@@ -246,7 +247,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="badge-and-meta">
                             <span class="category-badge ${badgeClass}">${item.category}</span>
                         </div>
-                        <div class="item-actions">
+                        <div class="item-actions" style="display: flex; gap: 0.35rem;">
+                            <button class="btn-card-action btn-copy-note" title="Copy update text" data-id="${item.id}">
+                                <i data-lucide="copy" style="width:0.95rem; height:0.95rem;"></i>
+                            </button>
                             <button class="btn-card-action btn-select-note" title="Select to Tweet">
                                 <i data-lucide="twitter" style="width:0.95rem; height:0.95rem;"></i>
                             </button>
@@ -254,6 +258,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="item-description">${item.contentHtml}</div>
                 `;
+                
+                // Copy Update Clipboard Action
+                const copyBtn = itemEl.querySelector('.btn-copy-note');
+                copyBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent card selection selection trigger
+                    navigator.clipboard.writeText(item.contentText)
+                        .then(() => {
+                            showToast('Copied update to clipboard!', 'success');
+                            const icon = copyBtn.querySelector('i');
+                            icon.setAttribute('data-lucide', 'check');
+                            lucide.createIcons();
+                            setTimeout(() => {
+                                icon.setAttribute('data-lucide', 'copy');
+                                lucide.createIcons();
+                            }, 2000);
+                        })
+                        .catch(err => {
+                            console.error('Copy failed:', err);
+                            showToast('Failed to copy to clipboard', 'error');
+                        });
+                });
                 
                 // Clicking anywhere on card selects it
                 itemEl.addEventListener('click', (e) => {
@@ -462,6 +487,65 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast('Opened Tweet intent in a new window!', 'success');
     });
     
+    // Export currently filtered release items to CSV
+    function exportToCsv() {
+        if (filteredReleaseItems.length === 0) {
+            showToast('No items to export', 'error');
+            return;
+        }
+        
+        // CSV Columns
+        const headers = ['Date', 'Category', 'Update Link', 'Description (Plaintext)'];
+        
+        // Escape helper for CSV cells
+        const escapeCsvValue = (val) => {
+            if (val === null || val === undefined) return '';
+            const stringVal = String(val);
+            if (stringVal.includes('"') || stringVal.includes(',') || stringVal.includes('\n') || stringVal.includes('\r')) {
+                return `"${stringVal.replace(/"/g, '""')}"`;
+            }
+            return stringVal;
+        };
+        
+        // Format rows
+        const rows = filteredReleaseItems.map(item => [
+            item.date,
+            item.category,
+            item.link,
+            item.contentText
+        ]);
+        
+        // Construct CSV content (inject Unicode BOM for Excel compatibility)
+        const csvContent = [
+            headers.map(escapeCsvValue).join(','),
+            ...rows.map(row => row.map(escapeCsvValue).join(','))
+        ].join('\n');
+        
+        const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        
+        // Generate filename based on filters and date
+        const dateStr = new Date().toISOString().split('T')[0];
+        const activeChip = document.querySelector('.filter-chip.active');
+        const categoryFilter = activeChip ? activeChip.dataset.category : 'all';
+        const filename = `bigquery_release_notes_${categoryFilter}_${dateStr}.csv`;
+        
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showToast(`Exported ${filteredReleaseItems.length} items to CSV!`, 'success');
+    }
+
+    // Export CSV Button click trigger
+    exportCsvBtn.addEventListener('click', () => {
+        exportToCsv();
+    });
+
     // Refresh Button click trigger
     refreshBtn.addEventListener('click', () => {
         if (refreshBtn.classList.contains('loading')) return;

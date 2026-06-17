@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
     const refreshBtn = document.getElementById('refreshBtn');
     const exportCsvBtn = document.getElementById('exportCsvBtn');
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const sunIcon = document.querySelector('.icon-theme-sun');
+    const moonIcon = document.querySelector('.icon-theme-moon');
     const statusDot = document.querySelector('.status-dot');
     const statusText = document.getElementById('statusText');
     const searchInput = document.getElementById('searchInput');
@@ -608,6 +611,36 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateStatus(dotClasses, text) {
         statusDot.className = `status-dot ${dotClasses}`;
         statusText.textContent = text;
+    }
+    
+    // Theme Toggle Handler
+    themeToggleBtn.addEventListener('click', () => {
+        document.body.classList.toggle('light-mode');
+        const isLight = document.body.classList.contains('light-mode');
+        
+        if (isLight) {
+            sunIcon.style.display = 'block';
+            moonIcon.style.display = 'none';
+            localStorage.setItem('theme', 'light');
+            showToast('Switched to Light theme', 'info');
+        } else {
+            sunIcon.style.display = 'none';
+            moonIcon.style.display = 'block';
+            localStorage.setItem('theme', 'dark');
+            showToast('Switched to Dark theme', 'info');
+        }
+    });
+
+    // Initialize Saved Theme
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-mode');
+        sunIcon.style.display = 'block';
+        moonIcon.style.display = 'none';
+    } else {
+        document.body.classList.remove('light-mode');
+        sunIcon.style.display = 'none';
+        moonIcon.style.display = 'block';
     }
     
     // Load notes on initialization

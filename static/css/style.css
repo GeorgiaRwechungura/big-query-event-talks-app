@@ -1022,3 +1022,172 @@ textarea#tweetContent:focus {
         height: auto;
     }
 }
+
+/* Theme Toggle Button Style */
+.btn-theme-toggle {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease-in-out;
+}
+.btn-theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+.btn-theme-toggle:active {
+    transform: scale(0.95);
+}
+
+/* Light Theme Variables and Overrides */
+body.light-mode {
+    --bg-app: #f8fafc; /* Slate 50 */
+    --bg-card: rgba(255, 255, 255, 0.85); /* Translucent bright white */
+    --bg-card-hover: rgba(241, 245, 249, 0.95); /* Slate 100 */
+    --border-color: rgba(15, 23, 42, 0.08); /* Transparent slate */
+    --border-color-hover: rgba(59, 130, 246, 0.45);
+    
+    --text-primary: #0f172a; /* Slate 900 */
+    --text-secondary: #334155; /* Slate 700 */
+    --text-muted: #64748b; /* Slate 500 */
+    
+    --accent-blue: #1d4ed8; /* Darker blue for contrast */
+    --accent-blue-glow: rgba(29, 78, 216, 0.1);
+    
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.04) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.04) 0px, transparent 50%);
+}
+
+/* Light Mode Overrides for Specific Interactive Elements */
+body.light-mode .app-header {
+    background: rgba(255, 255, 255, 0.75);
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+}
+
+body.light-mode .btn, body.light-mode .btn-theme-toggle {
+    background: rgba(15, 23, 42, 0.04);
+    color: var(--text-primary);
+    border-color: rgba(15, 23, 42, 0.08);
+}
+
+body.light-mode .btn:hover, body.light-mode .btn-theme-toggle:hover {
+    background: rgba(15, 23, 42, 0.08);
+    border-color: rgba(15, 23, 42, 0.15);
+}
+
+body.light-mode .btn-refresh:hover, body.light-mode .btn-csv:hover {
+    background: rgba(15, 23, 42, 0.08);
+    border-color: rgba(15, 23, 42, 0.18);
+}
+
+body.light-mode .status-indicator {
+    background: rgba(15, 23, 42, 0.03);
+    border-color: rgba(15, 23, 42, 0.05);
+}
+
+body.light-mode .search-bar input {
+    background: rgba(15, 23, 42, 0.03);
+}
+
+body.light-mode .search-bar input:focus {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 10px rgba(29, 78, 216, 0.1);
+}
+
+body.light-mode .filter-chip {
+    background: rgba(15, 23, 42, 0.02);
+}
+
+body.light-mode .filter-chip:hover {
+    background: rgba(15, 23, 42, 0.06);
+    border-color: rgba(15, 23, 42, 0.12);
+}
+
+body.light-mode .filter-chip.active {
+    background: rgba(29, 78, 216, 0.08);
+    border-color: var(--accent-blue);
+}
+
+body.light-mode .timeline-item-card:hover:not(.selected) {
+    background: rgba(15, 23, 42, 0.01);
+}
+
+body.light-mode .timeline-item-card.selected {
+    background: rgba(29, 78, 216, 0.03);
+}
+
+body.light-mode .item-description code {
+    background: rgba(15, 23, 42, 0.05);
+    border-color: rgba(15, 23, 42, 0.08);
+    color: #c2410c; /* Slate dark orange-red */
+}
+
+/* Light mode overrides for Tweet Composer visual simulator */
+body.light-mode .tweet-preview-simulator {
+    background: #ffffff;
+    border-color: rgba(15, 23, 42, 0.15);
+}
+
+body.light-mode .user-name {
+    color: #0f172a;
+}
+
+body.light-mode .user-handle {
+    color: #536471;
+}
+
+body.light-mode .preview-content {
+    color: #0f172a;
+}
+
+body.light-mode .preview-footer {
+    border-top-color: rgba(15, 23, 42, 0.08);
+    color: #536471;
+}
+
+body.light-mode .user-avatar {
+    background: #f1f5f9;
+}
+
+body.light-mode .avatar-icon {
+    color: #94a3b8;
+}
+
+body.light-mode textarea#tweetContent {
+    background: rgba(15, 23, 42, 0.02);
+}
+
+body.light-mode textarea#tweetContent:focus {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 10px rgba(29, 78, 216, 0.1);
+}
+
+body.light-mode .hashtag-tag {
+    background: rgba(15, 23, 42, 0.02);
+}
+
+body.light-mode .hashtag-tag:hover {
+    background: rgba(29, 78, 216, 0.06);
+    border-color: var(--accent-blue);
+}
+
+body.light-mode .hashtag-tag.active {
+    background: var(--accent-blue);
+    color: white;
+    box-shadow: 0 0 8px rgba(29, 78, 216, 0.2);
+}
+
+body.light-mode .progress-ring__circle-bg {
+    stroke: rgba(15, 23, 42, 0.04);
+}
+
+body.light-mode .timeline-date-marker {
+    background: #f8fafc;
+}
+

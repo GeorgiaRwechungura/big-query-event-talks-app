@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BigQuery Release Notes Radar</title>
+    
+    <!-- Meta tags for basic SEO -->
+    <meta name="description" content="Browse, search, and share Google Cloud BigQuery release notes with this real-time dashboard and Tweet builder.">
+    <meta name="author" content="Antigravity">
+    
+    <!-- Google Fonts: Outfit (modern, sans-serif) and JetBrains Mono (for code elements) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons for clean, modern symbols -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Dashboard Header -->
+        <header class="app-header">
+            <div class="header-logo">
+                <div class="logo-icon">
+                    <i data-lucide="database" class="icon-db"></i>
+                    <i data-lucide="sparkles" class="icon-sparkles"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>BigQuery <span>Radar</span></h1>
+                    <p class="subtitle">Release Notes Explorer & Tweet Builder</p>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <div class="status-indicator" id="statusIndicator">
+                    <span class="status-dot green"></span>
+                    <span class="status-text" id="statusText">Initializing...</span>
+                </div>
+                <button class="btn btn-refresh" id="refreshBtn" title="Refresh Release Notes">
+                    <i data-lucide="refresh-cw" class="icon-refresh"></i>
+                    <span>Refresh</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Workspace Layout -->
+        <div class="app-workspace">
+            
+            <!-- Left Panel: Feed, Search, and Filters -->
+            <main class="feed-section">
+                <!-- Search and Filters Panel -->
+                <div class="filter-panel card">
+                    <div class="search-bar">
+                        <i data-lucide="search" class="search-icon"></i>
+                        <input type="text" id="searchInput" placeholder="Search updates (e.g., 'Gemini', 'partition', 'UDF')...">
+                        <button class="clear-search-btn" id="clearSearchBtn" style="display: none;">
+                            <i data-lucide="x"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="category-filters">
+                        <button class="filter-chip active" data-category="all">
+                            <span class="chip-dot all"></span> All Updates
+                        </button>
+                        <button class="filter-chip" data-category="Feature">
+                            <span class="chip-dot feature"></span> Features
+                        </button>
+                        <button class="filter-chip" data-category="Announcement">
+                            <span class="chip-dot announcement"></span> Announcements
+                        </button>
+                        <button class="filter-chip" data-category="Breaking">
+                            <span class="chip-dot breaking"></span> Breaking
+                        </button>
+                        <button class="filter-chip" data-category="Change">
+                            <span class="chip-dot change"></span> Changes
+                        </button>
+                        <button class="filter-chip" data-category="Issue">
+                            <span class="chip-dot issue"></span> Issues
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Feed Container -->
+                <div class="feed-container" id="feedContainer">
+                    <!-- Loading Shimmer State -->
+                    <div class="feed-loading" id="feedLoading">
+                        <div class="shimmer-card"></div>
+                        <div class="shimmer-card"></div>
+                        <div class="shimmer-card"></div>
+                    </div>
+                    
+                    <!-- Empty State -->
+                    <div class="feed-empty" id="feedEmpty" style="display: none;">
+                        <i data-lucide="package-open" class="empty-icon"></i>
+                        <h3>No matching updates found</h3>
+                        <p>Try modifying your search keywords or category filters.</p>
+                    </div>
+                    
+                    <!-- Dynamic Release Feed -->
+                    <div class="release-timeline" id="releaseTimeline"></div>
+                </div>
+            </main>
+
+            <!-- Right Panel: Tweet Composer & Previewer -->
+            <aside class="composer-section">
+                <div class="composer-card card sticky">
+                    <div class="card-header">
+                        <i data-lucide="twitter" class="icon-twitter"></i>
+                        <h2>Share Update</h2>
+                    </div>
+                    
+                    <!-- No Selection State -->
+                    <div class="composer-empty" id="composerEmpty">
+                        <i data-lucide="mouse-pointer-click" class="select-icon"></i>
+                        <h3>Select an Update</h3>
+                        <p>Click on any release note in the timeline to load it into the tweet builder and share it with your network.</p>
+                    </div>
+                    
+                    <!-- Composer Form State -->
+                    <div class="composer-body" id="composerBody" style="display: none;">
+                        <div class="form-group">
+                            <label for="tweetContent">Draft Tweet</label>
+                            <textarea id="tweetContent" rows="6" placeholder="Draft your tweet here..."></textarea>
+                            
+                            <div class="composer-actions">
+                                <div class="char-counter">
+                                    <svg class="progress-ring" width="28" height="28">
+                                        <circle class="progress-ring__circle-bg" stroke="#1e293b" stroke-width="3" fill="transparent" r="11" cx="14" cy="14"/>
+                                        <circle class="progress-ring__circle" stroke="#3b82f6" stroke-width="3" fill="transparent" r="11" cx="14" cy="14" id="charProgressCircle"/>
+                                    </svg>
+                                    <span id="charCount">280</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hashtag Quick Tags -->
+                        <div class="form-group">
+                            <label>Quick Hashtags</label>
+                            <div class="hashtag-container" id="hashtagContainer">
+                                <button class="hashtag-tag" data-tag="#BigQuery">#BigQuery</button>
+                                <button class="hashtag-tag" data-tag="#GoogleCloud">#GoogleCloud</button>
+                                <button class="hashtag-tag" data-tag="#GCP">#GCP</button>
+                                <button class="hashtag-tag" data-tag="#DataEngineering">#DataEngineering</button>
+                                <button class="hashtag-tag" data-tag="#CloudComputing">#CloudComputing</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Real-time Tweet Simulator -->
+                        <div class="form-group">
+                            <label>X / Twitter Preview</label>
+                            <div class="tweet-preview-simulator">
+                                <div class="preview-header">
+                                    <div class="user-avatar">
+                                        <i data-lucide="user" class="avatar-icon"></i>
+                                    </div>
+                                    <div class="user-info">
+                                        <span class="user-name">You</span>
+                                        <span class="user-handle">@username</span>
+                                    </div>
+                                    <i data-lucide="more-horizontal" class="preview-more"></i>
+                                </div>
+                                <div class="preview-content" id="previewTweetContent">
+                                    Tweet content goes here...
+                                </div>
+                                <div class="preview-footer">
+                                    <span><i data-lucide="message-circle" class="preview-footer-icon"></i> 0</span>
+                                    <span><i data-lucide="repeat" class="preview-footer-icon"></i> 0</span>
+                                    <span><i data-lucide="heart" class="preview-footer-icon"></i> 0</span>
+                                    <span><i data-lucide="share" class="preview-footer-icon"></i></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-tweet" id="tweetBtn">
+                            <i data-lucide="twitter"></i> Tweet Now
+                        </button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Error/Toast Notifications -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
